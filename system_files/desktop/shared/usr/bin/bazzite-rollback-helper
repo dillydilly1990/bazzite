@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [[ $UID -eq 0 ]]; then
-  echo "This script must not run as root" >&2
-  exit 1
-fi
-
 source /usr/lib/ujust/ujust.sh
 
 IMAGE_INFO="/usr/share/ublue-os/image-info.json"
@@ -52,9 +47,9 @@ VARIANTS=(
 # Utility functions
 confirm() { 
   local msg="$1"
-  echo -n "$msg ${yellow}(y/N)${normal} "
+  echo -n "$msg ${yellow}(Y/n)${normal} "
   read -r reply
-  [[ "${reply,,}" =~ ^y ]]
+  [[ -z "$reply" || "${reply,,}" =~ ^y ]]
 }
 
 press_any_key() {
@@ -80,7 +75,7 @@ target_de() {
 
 signing_scheme() {
   local current=$(rpm-ostree status -b --json | jq -r '.deployments[]["container-image-reference"]')
-  [[ "$current" == *"ostree-image-signed"* ]] && echo "ostree-image-signed:ghcr.io" || echo "ostree-unverified-registry:ghcr.io"
+  [[ "$current" == *"ostree-image-signed"* ]] && echo "ostree-image-signed:docker://ghcr.io" || echo "ostree-unverified-registry:ghcr.io"
 }
 
 warn_if_de_mismatch() {
